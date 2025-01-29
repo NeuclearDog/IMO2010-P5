@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMO2010-P5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 18px; /* Increase base font size */
+        }
+
+        .box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin: 5px;
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+            font-size: 24px; /* Box text size */
+        }
+
+        .button {
+            margin: 15px 0; /* Increase vertical margin for buttons */
+        }
+
+        button {
+            padding: 10px 15px; /* Increase button padding */
+            font-size: 16px; /* Button text size */
+            margin: 5px; /* Add margin between buttons */
+            cursor: pointer; /* Pointer cursor for buttons */
+        }
+
+        .log {
+            border: 1px solid #000;
+            width: 300px;
+            height: 500px;
+            overflow-y: auto;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            font-size: 16px; /* Log text size */
+        }
+
+        .log p {
+            margin: 0;
+        }
+
+        h1,
+        h3 {
+            font-size: 30px; /* Heading size */
+            margin-bottom: 10px; /* Spacing below headings */
+        }
+
+        input {
+            width: 50px; /* Width for input fields */
+            margin-left: 5px;
+        }
+
+        .macro-list {
+            border: 1px solid #000;
+            padding: 5px;
+            margin-top: 15px;
+        }
+
+        .macro-list ul {
+            list-style-type: none; /* Remove bullet points */
+            padding: 0;
+        }
+
+        .macro-list li {
+            margin: 5px 0; /* Spacing between macro names */
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Coin Box Simulation</h1>
+
+    <div>
+        <div class="box" id="B1">1</div>
+        <div class="box" id="B2">1</div>
+        <div class="box" id="B3">1</div>
+        <div class="box" id="B4">1</div>
+        <div class="box" id="B5">1</div>
+        <div class="box" id="B6">1</div>
+    </div>
+
+    <div class="button">
+        <h3>Remove 1 from B</h3>
+        <button onclick="removeCoin(1)">Remove from B1 to B2</button>
+        <input type="number" id="removeCount1" value="1" min="1" placeholder="k">
+        <button onclick="removeCertainFrom(1)">Remove (Certain Times)</button>
+        <button onclick="removeAllFrom(1)">Remove All from B1 to B2</button>
+        <br>
+        <button onclick="removeCoin(2)">Remove from B2 to B3</button>
+        <input type="number" id="removeCount2" value="1" min="1" placeholder="k">
+        <button onclick="removeCertainFrom(2)">Remove (Certain Times)</button>
+        <button onclick="removeAllFrom(2)">Remove All from B2 to B3</button>
+        <br>
+        <button onclick="removeCoin(3)">Remove from B3 to B4</button>
+        <input type="number" id="removeCount3" value="1" min="1" placeholder="k">
+        <button onclick="removeCertainFrom(3)">Remove (Certain Times)</button>
+        <button onclick="removeAllFrom(3)">Remove All from B3 to B4</button>
+        <br>
+        <button onclick="removeCoin(4)">Remove from B4 to B5</button>
+        <input type="number" id="removeCount4" value="1" min="1" placeholder="k">
+        <button onclick="removeCertainFrom(4)">Remove (Certain Times)</button>
+        <button onclick="removeAllFrom(4)">Remove All from B4 to B5</button>
+        <br>
+        <button onclick="removeCoin(5)">Remove from B5 to B6</button>
+        <input type="number" id="removeCount5" value="1" min="1" placeholder="k">
+        <button onclick="removeCertainFrom(5)">Remove (Certain Times)</button>
+        <button onclick="removeAllFrom(5)">Remove All from B5 to B6</button>
+    </div>
+
+    <div class="button">
+        <h3>Swap B</h3>
+        <button onclick="swapBoxes(1)">Swap B2 and B3 via B1</button>
+        <button onclick="swapBoxes(2)">Swap B3 and B4 via B2</button>
+        <button onclick="swapBoxes(3)">Swap B4 and B5 via B3</button>
+        <button onclick="swapBoxes(4)">Swap B5 and B6 via B4</button>
+    </div>
+
+    <div class="button">
+        <h3>Macro Control</h3>
+        <button id="startRecordBtn" onclick="startRecording()">Macro Start Record</button>
+        <button id="stopRecordBtn" onclick="stopRecording()">Macro End Record</button>
+        <br>
+        <input type="text" id="macroName" placeholder="Macro name" />
+        <button onclick="storeMacro()">Store Macro</button>
+        <br>
+        <input type="text" id="playMacroName" placeholder="Play Macro" />
+        <input type="number" id="playCount" value="1" min="1" placeholder="Times to play" />
+        <button onclick="playStoredMacro()">Play Stored Macro</button>
+        <button onclick="playStoredMacroMax()">Play Macro (Max)</button>
+    </div>
+
+    <div class="macro-list" id="macroList">
+        <h3>Recorded Macros</h3>
+        <ul></ul>
+    </div>
+
+    <div class="button">
+        <div class="checkbox-wrapper">
+            <button id="logToggleBtn" onclick="toggleLogging()">Disable Logging</button>
+            <label>
+                <input type="checkbox" id="detailedLogging" onchange="toggleDetailedLogging()" />
+                Enable Detailed Logging
+            </label>
+        </div>
+    </div>
+
+    <div class="log" id="logArea">
+        <h3>Log Area</h3>
+        <p id="logContent"></p>
+    </div>
+
+    <div class="button">
+        <button onclick="undo()">Undo</button>
+    </div>
+
+    <script>
+        let macro = [];
+        let recordedMacros = {}; // Object to store recorded macros
+        let recording = false;
+        let loggingEnabled = true; // Default logging enabled
+        let detailedLoggingEnabled = false; // Default detailed logging disabled
+        let undoStack = []; // Stack for undo operations
+        const logToggleBtn = document.getElementById('logToggleBtn');
+
+        function toggleLogging() {
+            loggingEnabled = !loggingEnabled;
+            logToggleBtn.textContent = loggingEnabled ? "Disable Logging" : "Enable Logging";
+            logMessage(`Logging has been ${loggingEnabled ? "enabled" : "disabled"}.`);
+        }
+
+        function toggleDetailedLogging() {
+            detailedLoggingEnabled = document.getElementById('detailedLogging').checked;
+            logMessage(`Detailed logging has been ${detailedLoggingEnabled ? "enabled" : "disabled"}.`);
+        }
+
+        function updateBoxContent() {
+            for (let i = 1; i <= 6; i++) {
+                const box = document.getElementById(`B${i}`);
+                box.textContent = box.coinCount;
+            }
+        }
+
+        function logMessage(message) {
+            if (!loggingEnabled) return; // Don't log if logging is disabled
+            const logArea = document.getElementById('logArea');
+            const logContent = document.getElementById('logContent');
+            logContent.innerHTML += `<p>${message}</p>`;
+            logArea.scrollTop = logArea.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        function removeCoin(j) {
+            const box = document.getElementById(`B${j}`);
+            const nextBox = document.getElementById(`B${j + 1}`);
+            if (box.coinCount > 0) {
+                box.coinCount--;
+                nextBox.coinCount += 2;
+                updateBoxContent();
+                if (detailedLoggingEnabled) {
+                    logMessage(`Moved 2 coins from B${j} to B${j + 1}.`);
+                }
+                recordAction(`removeCoin(${j})`);
+                undoStack.push({ action: `removeCoin`, params: [j], before: { ...getCurrentState() } }); // Record state for undo
+                if (undoStack.length > 3) undone(); // Limit stack to last 3 actions
+            } else {
+                logMessage(`Warning: Box B${j} is empty!`);
+            }
+        }
+
+        function removeCertainFrom(j) {
+            const box = document.getElementById(`B${j}`);
+            const nextBox = document.getElementById(`B${j + 1}`);
+            const k = parseInt(document.getElementById(`removeCount${j}`).value) || 0;
+
+            if (box.coinCount >= k) {
+                box.coinCount -= k; // Subtract k from current box
+                nextBox.coinCount += k * 2; // Add 2k to the next box
+                updateBoxContent();
+                if (detailedLoggingEnabled) {
+                    logMessage(`Moved ${k * 2} coins from B${j} to B${j + 1}.`);
+                }
+                recordAction(`removeCertainFrom(${j}, ${k})`);
+                undoStack.push({ action: `removeCertainFrom`, params: [j, k], before: { ...getCurrentState() } }); // Record state for undo
+                if (undoStack.length > 3) undone(); // Limit stack to last 3 actions
+            } else {
+                logMessage(`Warning: Not enough coins in Box B${j} to remove ${k}!`);
+            }
+        }
+
+        function removeAllFrom(j) {
+            const box = document.getElementById(`B${j}`);
+            const nextBox = document.getElementById(`B${j + 1}`);
+            if (box.coinCount > 0) {
+                const coinsToMove = box.coinCount; // All coins from current box
+                box.coinCount = 0; // Set current box to 0
+                nextBox.coinCount += coinsToMove * 2; // Double the coins to the next
+                updateBoxContent();
+                if (detailedLoggingEnabled) {
+                    logMessage(`Moved ${coinsToMove * 2} coins from B${j} to B${j + 1}.`);
+                }
+                recordAction(`removeAllFrom(${j})`);
+                undoStack.push({ action: `removeAllFrom`, params: [j], before: { ...getCurrentState() } }); // Record state for undo
+                if (undoStack.length > 3) undone(); // Limit stack to last 3 actions
+            } else {
+                logMessage(`Warning: Box B${j} is empty!`);
+            }
+        }
+
+        function swapBoxes(k) {
+            const boxK = document.getElementById(`B${k}`);
+            const boxK1 = document.getElementById(`B${k + 1}`);
+            const boxK2 = document.getElementById(`B${k + 2}`);
+
+            if (boxK.coinCount > 0) {
+                let temp = boxK1.coinCount;
+                boxK1.coinCount = boxK2.coinCount;
+                boxK2.coinCount = temp;
+
+                boxK.coinCount--;
+                updateBoxContent();
+                if (detailedLoggingEnabled) {
+                    logMessage(`Swapped boxes B${k + 1} and B${k + 2}.`);
+                }
+                recordAction(`swapBoxes(${k})`);
+                undoStack.push({ action: `swapBoxes`, params: [k], before: { ...getCurrentState() } }); // Record state for undo
+                if (undoStack.length > 3) undone(); // Limit stack to last 3 actions
+            } else {
+                logMessage(`Warning: Box B${k} is empty!`);
+            }
+        }
+
+        function startRecording() {
+            if (recording) {
+                logMessage("Warning: Macro recording is already in progress!");
+                return;
+            }
+            macro = []; // Reset the macro
+            recording = true;
+            document.getElementById('startRecordBtn').disabled = true; // Disable start button
+            document.getElementById('stopRecordBtn').disabled = false; // Enable stop button
+            logMessage("Macro recording started! Perform your operations.");
+        }
+
+        function stopRecording() {
+            if (!recording) {
+                logMessage("Warning: No macro recording is in progress!");
+                return;
+            }
+            recording = false;
+            document.getElementById('startRecordBtn').disabled = false; // Enable start button
+            document.getElementById('stopRecordBtn').disabled = true; // Disable stop button
+            logMessage("Macro recording stopped!");
+        }
+
+        function recordAction(action) {
+            if (recording) {
+                macro.push(action);
+            }
+        }
+
+        function storeMacro() {
+            const name = document.getElementById('macroName').value.trim();
+            if (!macro.length) {
+                logMessage("Warning: No macro recorded to store!");
+                return;
+            }
+            if (name) {
+                recordedMacros[name] = macro.slice(); // Store a copy of the macro
+                logMessage(`Macro '${name}' stored successfully.`);
+                document.getElementById('macroName').value = ''; // Clear input
+                updateMacroList(); // Update the list of macros
+            } else {
+                logMessage("Warning: Must provide a name for the macro!");
+            }
+        }
+
+        function updateMacroList() {
+            const macroList = document.getElementById('macroList').querySelector('ul');
+            macroList.innerHTML = ''; // Clear current list
+
+            for (const name in recordedMacros) {
+                const li = document.createElement('li');
+                li.textContent = name;
+                macroList.appendChild(li);
+            }
+        }
+
+        function playStoredMacro() {
+            const name = document.getElementById('playMacroName').value.trim();
+            const times = parseInt(document.getElementById('playCount').value) || 1;
+
+            if (!recordedMacros[name]) {
+                logMessage(`Warning: Macro '${name}' not found!`);
+                return;
+            }
+
+            for (let t = 0; t < times; t++) {
+                recordedMacros[name].forEach(action => {
+                    eval(action); // Execute the recorded action
+                });
+            }
+            logMessage(`Played macro '${name}' ${times} time(s).`);
+        }
+
+        function playStoredMacroMax() {
+            const name = document.getElementById('playMacroName').value.trim();
+
+            if (!recordedMacros[name]) {
+                logMessage(`Warning: Macro '${name}' not found!`);
+                return;
+            }
+
+            for (let action of recordedMacros[name]) {
+                try {
+                    eval(action); // Execute the recorded action
+                } catch (e) {
+                    logMessage(`Stopped playing macro '${name}': ${e.message}`);
+                    return; // Stop if there's an error (like a warning)
+                }
+            }
+        }
+
+        function undo() {
+            if (undoStack.length === 0) {
+                logMessage("Warning: No actions to undo!");
+                return;
+            }
+
+            const lastAction = undoStack.pop();
+            restoreState(lastAction.before); // Restore to the state before the last action
+            logMessage(`Undid action: ${lastAction.action}(${lastAction.params.join(', ')})`);
+        }
+
+        function getCurrentState() {
+            const state = {};
+            for (let i = 1; i <= 6; i++) {
+                state[`B${i}`] = document.getElementById(`B${i}`).coinCount;
+            }
+            return state;
+        }
+
+        function restoreState(state) {
+            for (let key in state) {
+                document.getElementById(key).coinCount = state[key];
+            }
+            updateBoxContent();
+        }
+
+        // Initialize coins in each box
+        for (let i = 1; i <= 6; i++) {
+            const box = document.getElementById(`B${i}`);
+            box.coinCount = 1; // Each box starts with 1 coin
+        }
+
+        updateBoxContent(); // Initial update
+        // Disable the stop button by default
+        document.getElementById('stopRecordBtn').disabled = true;
+    </script>
+</body>
+
+</html>
